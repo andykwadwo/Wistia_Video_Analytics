@@ -29,6 +29,10 @@ jobs:
         env:
           ROLE_STRING: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           
+      - name: Print OIDC Token Sub Claim
+        run: |
+          echo "Your OIDC sub string is: repo:${{ github.repository_owner }}@${{ github.repository_owner_id }}/${{ github.event.repository.name }}@${{ github.repository_id }}"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
