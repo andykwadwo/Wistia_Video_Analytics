@@ -55,7 +55,7 @@ from datetime import datetime, timezone
 from typing import Any, Iterator
 from urllib.parse import urlencode
 from requests.auth import HTTPBasicAuth
-from awsglue.utils import getResolvedOptions
+from awsglue.utils import getResolvedOptions  # type: ignore[reportMissingImports]
 
 import boto3
 import requests
