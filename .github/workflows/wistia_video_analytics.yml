@@ -1,1 +1,50 @@
+name: Deploy Tiered Glue Job Scripts to S3
 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'glue-scripts/bronze/**'
+      - 'glue-scripts/silver/**'
+      - 'glue-scripts/gold/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Sync Tiered Scripts to S3
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4.1.0
+
+      - name: Debug Environment Variables
+        run: |
+          echo "Target Region: ${{ secrets.AWS_REGION }}"
+          echo "Role ARN Length: ${#ROLE_STRING}"
+        env:
+          ROLE_STRING: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      # Step 3: Deploy local scripts to their respective S3 architecture paths
+      - name: Sync Bronze Scripts to S3
+        run: |
+          aws s3 sync ./glue-scripts/bronze/ s3://${{ secrets.GLUE_S3_BUCKET }}/scripts/ --exact-timestamps
+
+      - name: Sync Silver Scripts to S3
+        run: |
+          aws s3 sync ./glue-scripts/silver/ s3://${{ secrets.GLUE_S3_BUCKET }}/scripts/ --exact-timestamps
+
+      - name: Sync Gold Scripts to S3
+        run: |
+          aws s3 sync ./glue-scripts/gold/ s3://${{ secrets.GLUE_S3_BUCKET }}/scripts/ --exact-timestamps
