@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-dummy comment
+
 Wistia Stats Events -> S3 Incremental Loader
 ============================================
 
